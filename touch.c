@@ -7,7 +7,7 @@
 int main (int argc, char *argv[])
 {
 	int fd;
-	if (argc < 2)
+	if (argc < 2 || argc > 2)
 	{
 		printf (1, "format penggunaan: touch [file yang akan dibuat]\n");
 		exit();
