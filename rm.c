@@ -1,12 +1,14 @@
 #include <stdio.h>
-#include <dirent.h>
-#include <sys/stat.h>
-#include <malloc.h>
+#include <xv6/dirent.h>
+#include <xv6/stat.h>
 #include <string.h>
-#include <sys/types.h>
+#include <xv6/types.h>
 #include <errno.h>
-#include <fnctl.h>
-#include <unistd.h>
+#include <xv6/fcntl.h>
+#include <syscall.h>
+
 int main(int argc, char *argv[]){
+    printf("berhasil dihapus\n");
 	unlink(argv[1]);
+    sysexit();
 }
