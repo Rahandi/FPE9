@@ -1,27 +1,70 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <errno.h>
-
-void print_error(char *this, char *filename1, char *filename2){
-	fprintf(stderr, "%s cannot move %s to %s\n%s\n",this,filename1,filename2 );
-	exit(EXIT_FAILURE);
-}
-
-void print_usage(char *this){
-	fprintf(stderr, "SYNTAX ERROR:\nUsage %s [old_filename] [new_filename]", this);
-	exit(EXIT_FAILURE);
-}
-
-int main(int argc, char *argv[]){
-	errno = 0;
-	if(argc==3){
-		if(rename(argv[1],argv[2])==-1){
-			print_error(argv[0],argv[1],argv[2]);
-		}
-	}
-	else{
-		print_usage(argv[0]);
-	}
-	return 0;
+#include <xv6/types.h> 
+#include <xv6/stat.h> 
+#include <stdio.h> 
+#include <xv6/fcntl.h> 
+#include <syscall.h> 
+#include <string.h> 
+ 
+char buf[512]; 
+ 
+int move_to_dir(char *source, char *dest){ 
+    int fd0, fd1, n; 
+    char anu[512];
+    strcpy(anu, source);
+    strcat(dest, "/"); 
+    strcat(dest, anu);
+ 
+    if((fd0 = open(anu, O_RDONLY)) < 0){ 
+        printf("[ERR] mv: tidak bisa membuka file yang mau dimove %s\n", anu); 
+        return -1; 
+    } 
+    if((fd1 = open(dest, O_CREAT|O_RDWR)) < 0){ 
+        printf("[ERR] mv: tidak bisa membuka file tujuan %s\n", dest); 
+        return -1; 
+    } 
+    while((n = read(fd0, buf, sizeof(buf))) > 0){ 
+        write(fd1, buf, n); 
+    } 
+ 
+    close(fd0); 
+    close(fd1); 
+    unlink(anu);
+    return 0; 
+} 
+ 
+int main(int argc, char *argv[]) 
+{ 
+    struct stat st, dt; 
+    int sts, dts, catch; 
+ 
+    if((sts = open(argv[1], 0)) < 0){ 
+        printf("[ERR] mv: tidak bisa membuka file/dir yang mau dimove %s\n", argv[1]); 
+        return -1; 
+    } 
+    if((dts = open(argv[2], 0)) < 0){ 
+        printf("[ERR] ga bisa buka argv[2]");
+        return -1; 
+    } 
+    if(fstat(sts, &st) < 0){ 
+        close(sts); 
+        printf("[ERR] mv: source bukan merupakan file/dir %s\n", argv[1]); 
+        return -1; 
+    } 
+    close(sts); 
+    if(fstat(dts, &dt) < 0){ 
+        close(dts); 
+        printf("[ERR] mv: destination bukan merupakan file/dir %s\n", argv[2]); 
+        return -1; 
+    } 
+    close(dts); 
+    if(st.type == 2 && dt.type == 2){ //kalo file
+        printf("[ERR] gak bisa move file to file :(\n");
+    } 
+    if(st.type == 2 && dt.type == 1){  //kalo ke dir
+        catch = move_to_dir(argv[1], argv[2]); 
+        if(catch == 0)
+            printf("move file to dir berhasil\n"); 
+    }
+ 
+ sysexit(); 
 }
