@@ -8,7 +8,15 @@
 #include <syscall.h>
 
 int main(int argc, char *argv[]){
-    printf("berhasil dihapus\n");
-	unlink(argv[1]);
+    if(argc < 2){ 
+        printf("apa yg mau di remove coba\n");
+        return 0;}
+    if(argc > 2){ 
+        printf("[ERR] format command : rm [file yg akan dihapus]\n");
+        return 0;}
+    else{
+        printf("%s berhasil dihapus\n", argv[1]);
+	    unlink(argv[1]);
+    }
     sysexit();
 }

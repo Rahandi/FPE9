@@ -33,7 +33,7 @@ void ls(char *path)
     char buf[512]; int fp; char *tmp;
     struct stat st; struct dirent die;
     //printf 0: stdin, 1: stdout, 2:stderr
-    if((fp=open(path,0)) < 0) { fprintf(stderr, "[ERR] gabisa buka file %s\n", path); return;}
+    if((fp=open(path,0)) < 0) { fprintf(stderr, "[ERR] tidak mendukung/gabisa buka file %s\n", path); return;}
     if(fstat(fp,&st) < 0){
         fprintf(stderr, "[ERR] %s bukan file, dir, maupun device\n", path); 
         close(fp); return;}
@@ -46,7 +46,7 @@ void ls(char *path)
             strcpy(buf, path);
             tmp = buf+strlen(buf);
             *tmp++ = '/';
-            while(read(fp, &die, sizeof(die)) == sizeof(die)){ //dia bakal nge loop dari dir itu, ngecek kalo file di dlmnya mrupakan st.type yg sesuai
+            while(read(fp, &die, sizeof(die)) == sizeof(die)){ //dia bakal nge loop dari dir itu, ngecek file apa saja didalamnya
                 if(die.d_ino == 0) continue;
                 memmove(tmp, die.d_name, NAME_MAX);
                 tmp[NAME_MAX] = 0;
@@ -65,9 +65,12 @@ void ls(char *path)
 int main(int argc, char *argv[])
 {
     if(argc < 2){
-        ls("."); //file yg namanya diawali dgn "." tidak terdaftar (wikipedia)
+        ls("."); //ls direktori saat ini
         sysexit();
     }
-    for(int i=1;i<argc;i++) ls(argv[i]);
+    for(int i=1;i<argc;i++) { //ls direktori argv
+        //printf(argv[i]);
+        ls(argv[i]);
+    }
     sysexit();
 }

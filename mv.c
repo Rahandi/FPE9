@@ -15,7 +15,7 @@ int move_to_dir(char *source, char *dest){
     strcat(dest, anu);
  
     if((fd0 = open(anu, O_RDONLY)) < 0){ 
-        printf("[ERR] mv: tidak bisa membuka file yang mau dimove %s\n", anu); 
+        printf("[ERR] tidak bisa membuka file (%s) yang mau dimove.\n", anu); 
         return -1; 
     } 
     if((fd1 = open(dest, O_CREAT|O_RDWR)) < 0){ 
@@ -38,11 +38,11 @@ int main(int argc, char *argv[])
     int sts, dts, catch; 
  
     if((sts = open(argv[1], 0)) < 0){ 
-        printf("[ERR] mv: tidak bisa membuka file/dir yang mau dimove %s\n", argv[1]); 
+        printf("[ERR] tidak bisa membuka file/dir %s yang mau dimove\n", argv[1]); 
         return -1; 
     } 
     if((dts = open(argv[2], 0)) < 0){ 
-        printf("[ERR] ga bisa buka argv[2]");
+        printf("[ERR] ga bisa buka argv[2]\nformat command: mv [srcfile] [destdir]\n");
         return -1; 
     } 
     if(fstat(sts, &st) < 0){ 
@@ -57,13 +57,13 @@ int main(int argc, char *argv[])
         return -1; 
     } 
     close(dts); 
-    if(st.type == 2 && dt.type == 2){ //kalo file
-        printf("[ERR] gak bisa move file to file :(\n");
+    if(dt.type == 2){ //kalo file
+        printf("[ERR] gak bisa move to file :(\n");
     } 
-    if(st.type == 2 && dt.type == 1){  //kalo ke dir
+    if(dt.type == 1){  //kalo ke dir
         catch = move_to_dir(argv[1], argv[2]); 
         if(catch == 0)
-            printf("move file to dir berhasil\n"); 
+            printf("move file %s to dir %s berhasil\n", argv[1], argv[2]); 
     }
  
  sysexit(); 
