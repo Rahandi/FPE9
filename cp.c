@@ -1,99 +1,102 @@
-#include "types.h"
-#include "stat.h"
-#include "user.h"
-#include "fcntl.h"
-#include "fs.h"
+#include <xv6/types.h> 
+#include <xv6/stat.h> 
+#include <stdio.h> 
+#include <xv6/fcntl.h> 
+#include <syscall.h> 
+#include <string.h> 
 
-char buf[512];
+char buf[512]; 
 
-int
-main(int argc, char *argv[])
-{
-	int fd0, fd1, n;
+int copy(char *source, char *dest){ 
+	int fd0, fd1, n; 
 
-	//cek jumlah argument
-	if(argc < 3 || argc > 4){
-		printf(1, "format penggunaan: cp [sumber] [tujuan] [option]\n");;
-		exit();
-	}
+	if((fd0 = open(source, O_RDONLY)) < 0){ 
+		printf("cp: tidak bisa membuka file yang mau dicopy %s\n", source); 
+		return -1; 
+	} 
 
-	//jika penggunaan tanpa option
-	if(argc == 3){
+	if((fd1 = open(dest, O_CREAT|O_RDWR)) < 0){ 
+		printf("cp: tidak bisa membuka file tujuan %s\n", dest); 
+		return -1;
+	} 
 
-		//cek jika penggunaan untuk semua file
-		if(strcmp(argv[1], "*") == 0){
-			printf(1, "argument 2 adalah *\n");
-			exit();
-		}
+	while((n = read(fd0, buf, sizeof(buf))) > 0){ 
+		write(fd1, buf, n); 
+	} 
 
-		//cek apakah source merupakan folder atau bukan
-		struct stat st;
-		fstat(*argv[1], &st);
-		if(st.type == T_DIR){
-			printf(1, "cp: gabisa mengcopy folder\n");
-			exit();
-		}
-		
-		//cek apakah source bisa dibuka
-		if((fd0 = open(argv[1], O_RDONLY)) < 0){
-			printf(1, "cp: tidak membisa buka file yang mau dicopy %s\n", argv[1]);
-			exit();
-		}
+	close(fd0); 
+	close(fd1); 
+	return 0; 
+} 
 
-		//cek apakah dest merupakan folder atau bukan
-		struct stat dt;
-		fstat(*argv[2], &dt);
-		if(dt.type == T_DIR){
-			char *ptr, *dirdest;
-			dirdest = argv[2];
-			ptr = argv[1];
-			while(*ptr != 0){ 
-				ptr = ptr + 1;
-			}
-			while(ptr > argv[1] && *ptr != '/'){
-				ptr = ptr - 1;
-			}
-			if(*ptr == '/'){
-				ptr = ptr + 1;
-			}
-			while(*dirdest != 0){
-				dirdest = dirdest + 1;
-			}
-			dirdest = dirdest - 1;
-			if(*dirdest != '/'){
-				dirdest = dirdest + 1;
-				*dirdest = '/';
-				dirdest = dirdest + 1;
-				*dirdest = '0';
-			}
-			else{
-				dirdest = dirdest + 1;
-			}
-			while(*ptr != 0) *dirdest++ = *ptr++;
-			*dirdest++ = 0;
-			printf(1, "masuk folder %s\n", argv[2]);
-		}
+int copy_to_dir(char *source, char *dest){ 
+	int fd0, fd1, n; 
+	char anu[512];
+	strcpy(anu, source);
+	strcat(dest, "/"); 
+	strcat(dest, source);
 
-		//cek apakah dest bisa dibuka
-		if((fd1 = open(argv[2], O_CREATE|O_RDWR)) < 0){
-			printf(1, "cp: tidak bisa membuka file tujuan %s\n", argv[2]);
-			exit();
-		}
+	if((fd0 = open(anu, O_RDONLY)) < 0){ 
+		printf("cp: tidak bisa membuka file yang mau dicopy %s\n", anu); 
+		return -1; 
+	} 
 
-		//copy isi file source ke dest
-		while((n = read(fd0, buf, sizeof(buf)))>0){
-			write(fd1, buf, n);
-		}
+	if((fd1 = open(dest, O_CREAT|O_RDWR)) < 0){ 
+		printf("cp: tidak bisa membuka file tujuan %s\n", dest); 
+		return -1; 
+	} 
 
-		close(fd0);
-		close(fd1);
-	}
+	while((n = read(fd0, buf, sizeof(buf))) > 0){ 
+		write(fd1, buf, n); 
+	} 
 
-	if(argc == 4){
-		printf(1, "4 argument\n");
-		if(strcmp(argv[3], "-R") == 0){
-			printf(1, "argument 4 adalah -R\n");
-		}
-	}
-	exit();
+	close(fd0); 
+	close(fd1); 
+	return 0; 
+} 
+
+int main(int argc, char *argv[]) 
+{ 
+	struct stat st, dt; 
+	int sts, dts, catch; 
+
+	if((sts = open(argv[1], 0)) < 0){ 
+		printf("cp: tidak bisa membuka file/dir yang mau dicopy %s\n", argv[1]); 
+		return -1; 
+	} 
+
+	if((dts = open(argv[2], 0)) < 0){ 
+		catch=copy(argv[1],argv[2]);
+		if(catch == 0){ 
+			printf("copy file to file berhasil\n"); 
+		} 
+		return 0; 
+	} 
+
+	if(fstat(sts, &st) < 0){ 
+		close(sts); 
+		printf("cp: source bukan merupakan file/dir %s\n", argv[1]); 
+		return -1; 
+	} 
+	close(sts); 
+
+	if(fstat(dts, &dt) < 0){ 
+		close(dts); 
+		printf("cp: destination bukan merupakan file/dir %s\n", argv[2]); 
+		return -1; 
+	} 
+	close(dts); 
+
+	if(st.type == 2 && dt.type == 2){ //kalo file
+		printf("file wis enek\n");
+	} 
+
+	if(st.type == 2 && dt.type == 1){ //kalo ke dir
+		catch = copy_to_dir(argv[1], argv[2]); 
+		if(catch == 0){ 
+			printf("copy file to dir berhasil\n"); 
+		} 
+	} 
+
+	sysexit(); 
 }
