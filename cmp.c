@@ -23,13 +23,18 @@ int main (int argc, char *argv[])
         	printf(1, "%s tidak ditemukan\n", argv[2]);
         	exit();
     	}
-	
+	else if((fd2 = open(argv[2], O_RDONLY)) < 0 || (fd1 = open(argv[1], O_RDONLY)) < 0)
+    	{	
+        	printf(1, "%s dan %s tidak ditemukan\n", argv[1], argv[2]);
+        	exit();
+    	}
 	else
 	{
 		byte = 0;
 		line = 1;
 		while (1)
 		{
+			++byte;
         		if((read(fd1, &t1, sizeof(t1))) <= 0 || (read(fd2, &t2, sizeof(t2))) <= 0)
 			{
 				break;
@@ -56,28 +61,3 @@ int main (int argc, char *argv[])
 	}
 	exit();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
