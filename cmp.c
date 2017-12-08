@@ -6,7 +6,8 @@
 
 int main (int argc, char *argv[])
 {
-	int fd1, fd2, byte, t1, t2, line;
+	int fd1, fd2, byte, line;
+	char t1, t2;
     	if(argc != 3)
     	{
 		printf (1, "format penggunaan: cmp [nama file1] [nama file2]\n");
@@ -34,7 +35,7 @@ int main (int argc, char *argv[])
 		line = 1;
 		while (1)
 		{
-			++byte;
+			byte++;
         		if((read(fd1, &t1, sizeof(t1))) <= 0 || (read(fd2, &t2, sizeof(t2))) <= 0)
 			{
 				break;
@@ -48,6 +49,7 @@ int main (int argc, char *argv[])
             			break;
         		}
 		}
+
 		if(read(fd1, &t1, sizeof(t1))!=0 || read(fd2, &t2, sizeof(t2))!=0)
     		{
 	 		printf(1, "file %s dan file %s berbeda pada: byte %d line %d\n", argv[1], argv[2], byte, line);
@@ -58,6 +60,7 @@ int main (int argc, char *argv[])
 		}
 		close(fd1);
     		close(fd2);
+		exit();
 	}
-	exit();
+	
 }
