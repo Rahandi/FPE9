@@ -11,7 +11,6 @@ int main (int argc, char *argv[])
 		printf (1, "format penggunaan: cmp [nama file1] [nama file2]\n");
         	exit();
     	}
-    	exit();
     	
 	int fd1, fd2;
 	if((fd1 = open(argv[1], O_RDONLY) < 0)
