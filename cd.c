@@ -1,15 +1,15 @@
-#include"types.h"
-#include"stat.h"
-#include"user.h"
-#include"fcntl.h"
-#include"fs.h"
+#include <xv6/types.h>
+#include <xv6/stat.h>
+#include <stdio.h>
+#include <xv6/fcntl.h>
+#include <syscall.h>
 
 int main (int argc, char *argv[])
-{
+{    
 	if (argc < 2 || argc > 2)
 	{
-		printf (1, "format penggunaan: cd [direktori yang ingin dituju]\n");
-		exit();
+		printf("format penggunaan: cd [dir]/\n");
+		return 1;
 	}
 
 	int temp=0;
@@ -17,9 +17,9 @@ int main (int argc, char *argv[])
 
 	if (temp < 0)
 	{
-		printf (1, "tidak bisa pindah directory\n");
-		exit();
+		printf("tidak bisa pindah directory\n");
+		return 1;
 	}
-	printf (1, "berhasil pindah directory ke %s\n", argv[1]);
-	exit();
+	printf("berhasil pindah directory ke %s\n", argv[1]);
+	sysexit();
 }

@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
         return -1; 
     } 
     if((dts = open(argv[2], 0)) < 0){ 
-        printf("[ERR] ga bisa buka argv[2]\nformat command: mv [srcfile] [destdir]\n");
+        printf("[ERR] ga bisa buka argv[2]\nformat command: mv [srcfile] [destdir]\n"); //coba ini dibuat rename
         return -1; 
     } 
     if(fstat(sts, &st) < 0){ 
